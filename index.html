@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculator App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.1.0/math.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "League Spartan", sans-serif;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: hsl(222, 26%, 31%);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+
+      .calculator {
+        max-width: 400px;
+        width: 100%;
+        display: grid;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      #screen {
+        background-color: hsl(223, 31%, 20%);
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-bottom: 16px;
+      }
+
+      #screenDisplay {
+        flex: 1;
+        text-align: right;
+        font-size: 24px;
+        color: #fff;
+        background: transparent;
+        border: none;
+        outline: none;
+      }
+
+      #buttons {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(4, 1fr);
+        background-color: hsl(223, 31%, 20%);
+        padding: 0 20px;
+        padding-top: 20px;
+        border-top-right-radius: 8px;
+        border-top-left-radius: 8px;
+      }
+
+      button {
+        background-color: hsl(30, 25%, 89%);
+        color: hsl(221, 14%, 31%);
+        text-align: center;
+        border-radius: 12px;
+        border: none;
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+          rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+        padding: 12px;
+        font-size: 32px;
+        cursor: pointer;
+        position: relative;
+        min-height: 50px;
+      }
+
+      #functionalButtons {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 8px;
+      }
+
+      #finalBtns {
+        background-color: hsl(223, 31%, 20%);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 20px;
+        padding-top: 0;
+        border-bottom-right-radius: 8px;
+        border-bottom-left-radius: 8px;
+      }
+
+      .ultimate-button {
+        grid-column: span 1;
+        flex: 1;
+        margin-top: 16px;
+      }
+
+      .button-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -46%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calculator">
+      <div id="screen">
+        <label for="screenDisplay" class="sr-only">Calculator screen</label>
+        <input
+          id="screenDisplay"
+          readonly
+          type="text"
+          class="calculator-screen"
+          name="calculator-screen"
+          value="0"
+        />
+      </div>
+      <div id="buttons">
+        <button class="number-buttons">
+          <div class="button-text">7</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">8</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">9</div>
+        </button>
+        <button class="functional-buttons delete-btn">
+          <div class="button-text">DEL</div>
+        </button>
+
+        <button class="number-buttons">
+          <div class="button-text">4</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">5</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">6</div>
+        </button>
+        <button class="functional-buttons">
+          <div class="button-text">+</div>
+        </button>
+
+        <button class="number-buttons">
+          <div class="button-text">1</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">2</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">3</div>
+        </button>
+        <button class="functional-buttons">
+          <div class="button-text">-</div>
+        </button>
+
+        <button class="number-buttons">
+          <div class="button-text">.</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">0</div>
+        </button>
+        <button class="number-buttons">
+          <div class="button-text">/</div>
+        </button>
+        <button class="functional-buttons">
+          <div class="button-text">x</div>
+        </button>
+      </div>
+      <div id="finalBtns">
+        <button id="reset" class="ultimate-button">
+          <div class="button-text">RESET</div>
+        </button>
+        <button id="equals" class="ultimate-button">
+          <div class="button-text">=</div>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const screenDisplay = document.getElementById("screenDisplay");
+        const numberButtons = document.querySelectorAll("button");
+        const equalsButton = document.getElementById("equals");
+        const resetButton = document.getElementById("reset");
+
+        resetButton.addEventListener("click", () => {
+          screenDisplay.value = "0";
+        });
+
+        equalsButton.addEventListener("click", () => {
+          try {
+            screenDisplay.value = calculateExpression(screenDisplay.value);
+          } catch (error) {
+            screenDisplay.value = "Error";
+          }
+        });
+
+        numberButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            if (button.classList.contains("ultimate-button")) return;
+
+            if (button.classList.contains("delete-btn")) {
+              screenDisplay.value = screenDisplay.value
+                .split("")
+                .slice(0, -1)
+                .join("");
+              return;
+            }
+
+            if (screenDisplay.value === "Error") {
+              screenDisplay.value = 0;
+            }
+
+            if (screenDisplay.value === "0") {
+              screenDisplay.value = button.innerText;
+            } else {
+              screenDisplay.value += button.innerText;
+            }
+          });
+        });
+      });
+
+      const calculateExpression = (expression) => {
+        // Split the expression into tokens
+        const tokens = expression.match(/\d+|\+|\-|\*|\/|\(|\)/g);
+
+        // Define operator precedence
+        const precedence = {
+          "+": 1,
+          "-": 1,
+          "*": 2,
+          "/": 2,
+        };
+
+        // Helper function to perform binary operations
+        function applyOperator(operators, values) {
+          const operator = operators.pop();
+          const right = values.pop();
+          const left = values.pop();
+
+          switch (operator) {
+            case "+":
+              values.push(left + right);
+              break;
+            case "-":
+              values.push(left - right);
+              break;
+            case "*":
+              values.push(left * right);
+              break;
+            case "/":
+              values.push(left / right);
+              break;
+          }
+        }
+
+        // Evaluate the expression using a stack-based approach
+        const operators = [];
+        const values = [];
+
+        for (const token of tokens) {
+          if (/\d+/.test(token)) {
+            values.push(parseFloat(token));
+          } else if (token in precedence) {
+            while (
+              operators.length > 0 &&
+              precedence[operators[operators.length - 1]] >= precedence[token]
+            ) {
+              applyOperator(operators, values);
+            }
+            operators.push(token);
+          } else if (token === "(") {
+            operators.push(token);
+          } else if (token === ")") {
+            while (
+              operators.length > 0 &&
+              operators[operators.length - 1] !== "("
+            ) {
+              applyOperator(operators, values);
+            }
+            operators.pop(); // Remove the '(' from the stack
+          }
+        }
+
+        while (operators.length > 0) {
+          applyOperator(operators, values);
+        }
+
+        return values[0];
+      };
+    </script>
+  </body>
+</html>
